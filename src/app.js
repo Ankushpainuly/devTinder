@@ -1,31 +1,41 @@
 //creating server using express js
-const express=require('express');
+const express = require("express");
 
-const app=express();
+const app = express();
 
-//order matters
+//we can have multiple route handlers
+// app.get("/user",rh1,[rh2,rh3],rh4,rh5);//can also rap all or some of them inside a arry still works same
+
+//can only send 1 res.send
+app.get(
+  "/user",
+  (req, res, next) => {
+    console.log("handling 1st route");
+    // res.send("1st Response");
+    next();
+  },
+  (req, res, next) => {
+    console.log("handling 2nd route");
+    // res.send("2nd Response");
+    next();
+  },
+  (req, res, next) => {
+    console.log("handling 3rd route");
+    // res.send("3rd Response");
+    next();
+  },
+  (req, res, next) => {
+    console.log("handling 4th route");
+    // res.send("4th Response");
+    next();
+  },
+  (req, res, next) => {
+    console.log("handling 5th route");
+    res.send("5th Response");
+  }
+);
 
 
-//this will only handle get calls to /user
-app.get("/user",(req,res)=>{
-    res.send({firstName:"Ankush", lastName:"Painuly"});
-})
-
-app.post("/user",(req,res)=>{
-    res.send("data send sucessfully.");
-});
-
-app.delete("/user",(req,res)=>{
-    res.send("data deleted sucessfully.");
-});
-
-//this will match all the HTTP methods APIs calls to /test
-app.use("/test",(req,res)=>{
-    res.send("This is the test page!");
-});
-
-
-
-app.listen(777,()=>{
-    console.log("Server is sucessfully lisning on port 777...");
+app.listen(777, () => {
+  console.log("Server is sucessfully lisning on port 777...");
 });
