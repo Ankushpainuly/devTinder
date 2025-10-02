@@ -4,26 +4,30 @@ const {adminAuth,userAuth} =require("./middlewares/auth");
 
 const app = express();
 
-//use of maiddleware so auth only check when go to /admin/**** or /user/data
-app.use("/admin",adminAuth);
+//best practice is to use try{}catch{ } for error
+app.get("/getUserData",(req,res)=>{
+    //logic of dB call and get user data
 
-app.post("/user/login",(req,res)=>{
-    res.send("user loged in successfully");
-})
- 
-app.get("/user/data",userAuth,(req,res)=>{
-    res.send("User Data Sent");
+    // try{
+
+        throw new Error("errrrar");
+        res.send("User Data sent");
+
+    // }catch(err){
+    //     res.status(500).send("some error occured");
+    // }
 })
 
-app.get("/admin/getData",(req,res)=>{
-    res.send("AllData");
+
+//if 2 argument the 1.req,2.res 
+//if 3 argument the 1.req,2.res,3.next
+//if 4 argument the 1.err,2.req,3.res,4.next
+app.use("/",(err,req,res,next)=>{//wild card error handling write at the end so if there if error that was not handled will handle here
+    if(err){
+        res.status(500).send("something went wrong");
+    }
+    
 });
-
-app.get("/admin/deleteUser",(req,res)=>{
-    res.send("User Deleted");
-})
-
-
 
 
 app.listen(777, () => {
