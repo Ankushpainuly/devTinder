@@ -1,39 +1,29 @@
 //creating server using express js
 const express = require("express");
+const {adminAuth,userAuth} =require("./middlewares/auth");
 
 const app = express();
 
-//we can have multiple route handlers
-// app.get("/user",rh1,[rh2,rh3],rh4,rh5);//can also rap all or some of them inside a arry still works same
+//use of maiddleware so auth only check when go to /admin/**** or /user/data
+app.use("/admin",adminAuth);
 
-//can only send 1 res.send
-app.get(
-  "/user",
-  (req, res, next) => {
-    console.log("handling 1st route");
-    // res.send("1st Response");
-    next();
-  },
-  (req, res, next) => {
-    console.log("handling 2nd route");
-    // res.send("2nd Response");
-    next();
-  },
-  (req, res, next) => {
-    console.log("handling 3rd route");
-    // res.send("3rd Response");
-    next();
-  },
-  (req, res, next) => {
-    console.log("handling 4th route");
-    // res.send("4th Response");
-    next();
-  },
-  (req, res, next) => {
-    console.log("handling 5th route");
-    res.send("5th Response");
-  }
-);
+app.post("/user/login",(req,res)=>{
+    res.send("user loged in successfully");
+})
+ 
+app.get("/user/data",userAuth,(req,res)=>{
+    res.send("User Data Sent");
+})
+
+app.get("/admin/getData",(req,res)=>{
+    res.send("AllData");
+});
+
+app.get("/admin/deleteUser",(req,res)=>{
+    res.send("User Deleted");
+})
+
+
 
 
 app.listen(777, () => {
