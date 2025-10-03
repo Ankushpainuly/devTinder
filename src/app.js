@@ -1,35 +1,40 @@
 //creating server using express js
 const express = require("express");
-const {adminAuth,userAuth} =require("./middlewares/auth");
+const connectDB =require("./config/database");
+const User =require("./models/user");
 
 const app = express();
 
-//best practice is to use try{}catch{ } for error
-app.get("/getUserData",(req,res)=>{
-    //logic of dB call and get user data
+app.use(express.json());//built in middleware for parsing json into js object
 
-    // try{
+app.post("/signup",async (req,res)=>{
 
-        throw new Error("errrrar");
-        res.send("User Data sent");
+    //creating a new instance of user model
+    const user =new User(req.body);
 
-    // }catch(err){
-    //     res.status(500).send("some error occured");
-    // }
-})
-
-
-//if 2 argument the 1.req,2.res 
-//if 3 argument the 1.req,2.res,3.next
-//if 4 argument the 1.err,2.req,3.res,4.next
-app.use("/",(err,req,res,next)=>{//wild card error handling write at the end so if there if error that was not handled will handle here
-    if(err){
-        res.status(500).send("something went wrong");
+    try{
+        await user.save();//now it insert the user in users collection if already exits oderwise create and save
+        res.send("User Added Succesfully");
+    }catch(err){
+        res.status(400).send("Error saving the user "+err.message);
     }
-    
+
 });
 
 
-app.listen(777, () => {
-  console.log("Server is sucessfully lisning on port 777...");
-});
+
+//this function return a promise
+connectDB()
+    .then(()=>{
+        console.log("Database connection establish..");
+
+        //when the connection establish then we start lisning the server
+        app.listen(777, () => {
+          console.log("Server is sucessfully lisning on port 777...");
+        });
+    })
+    .catch((err)=>{
+        console.log("Databse cannot be connected");
+    })
+
+
