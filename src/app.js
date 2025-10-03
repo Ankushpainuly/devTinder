@@ -21,6 +21,38 @@ app.post("/signup",async (req,res)=>{
 
 });
 
+//Get user by emailId
+app.get("/user",async (req,res)=>{
+    const userEmail=req.body.emailId;
+    try{
+        const user= await User.find({emailId:userEmail});
+        if(!user){
+            res.status(500).send("Something went wrong!!");
+        }else{
+
+            res.send(user);
+        }
+    }catch(err){
+        res.status(500).send("Something went wrong!!");
+    }
+
+});
+
+
+//feed Api => Get feed all users from database
+app.get("/feed",async (req,res)=>{
+    try{
+        const users= await User.find({});
+        res.send(users);
+    }catch(err){
+        res.status(500).send("Something went wrong!!");
+    }
+
+
+});
+
+
+
 
 
 //this function return a promise
