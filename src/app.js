@@ -51,8 +51,33 @@ app.get("/feed",async (req,res)=>{
 
 });
 
+app.delete("/user",async(req,res)=>{
+    const userId=req.body.userId;
+
+    try{
+       const user= await User.findByIdAndDelete({ _id: userId });;
+    //    const user= await User.findByIdAndDelete(userId);;
+        res.send("User deleted Successfully");
+
+    }catch(err){
+        res.status(500).send("Something went wrong!!");
+    }
+});
 
 
+app.patch("/user",async(req,res)=>{
+    const userId=req.body.userId;
+    const data =req.body;
+
+    try{
+        const user=await User.findByIdAndUpdate(userId ,data, //the data will updata other info will be same and ignore exta info if any that are not in schema
+            {returnDocument:"before"},{runValidators:true});//optional field
+        console.log(user);
+        res.send("User updated succesfully");
+    }catch(err){
+        res.status(500).send("Failed:"+err.message);
+    }
+})
 
 
 //this function return a promise
