@@ -65,15 +65,32 @@ app.delete("/user",async(req,res)=>{
 });
 
 
-app.patch("/user",async(req,res)=>{
-    const userId=req.body.userId;
+app.patch("/user/:userId",async(req,res)=>{
+    const userId=req.params?.userId;
     const data =req.body;
 
+    
     try{
+        
+        const ALLOWED_UPDATES=["photoUrl","about","gender","age","skills"];
+    
+        const isUpdateAllowed = Object.keys(data).every((k)=>{
+            ALLOWED_UPDATES.includes(k);
+        });
+    
+        if(!isUpdateAllowed){
+            throw new Error("Updata Not Allowed");
+        }
+        if(data?.skills.length>10){
+            throw new Error("Updata Not Allowed");
+        }
+
+
         const user=await User.findByIdAndUpdate(userId ,data, //the data will updata other info will be same and ignore exta info if any that are not in schema
-            {returnDocument:"before"},{runValidators:true});//optional field
+            {returnDocument:"before"},{runValidators:true});//optional field //1. returnDocument before update 2.schemaValidation in update allow
         console.log(user);
         res.send("User updated succesfully");
+
     }catch(err){
         res.status(500).send("Failed:"+err.message);
     }
