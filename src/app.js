@@ -71,18 +71,18 @@ app.patch("/user/:userId",async(req,res)=>{
 
     
     try{
-        
+        //API validation
         const ALLOWED_UPDATES=["photoUrl","about","gender","age","skills"];
     
-        const isUpdateAllowed = Object.keys(data).every((k)=>{
-            ALLOWED_UPDATES.includes(k);
-        });
+        const isUpdateAllowed = Object.keys(data).every((k)=>
+            ALLOWED_UPDATES.includes(k)
+        );
     
         if(!isUpdateAllowed){
-            throw new Error("Updata Not Allowed");
+            throw new Error("Update Not Allowed");
         }
         if(data?.skills.length>10){
-            throw new Error("Updata Not Allowed");
+            throw new Error("Update Not Allowed");
         }
 
 
@@ -103,8 +103,8 @@ connectDB()
         console.log("Database connection establish..");
 
         //when the connection establish then we start lisning the server
-        app.listen(777, () => {
-          console.log("Server is sucessfully lisning on port 777...");
+        app.listen(300, () => {
+          console.log("Server is sucessfully lisning on port 300...");
         });
     })
     .catch((err)=>{
