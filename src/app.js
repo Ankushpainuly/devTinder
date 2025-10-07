@@ -4,10 +4,13 @@ const connectDB =require("./config/database");
 const User =require("./models/user");
 const {validateSignUpData} =require("./utils/validation");
 const bcrypt =require("bcrypt");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 
-app.use(express.json());//built in middleware for parsing json into js object
+app.use(express.json());//It parses incoming requests with JSON 
+app.use(cookieParser());//for reading cookies
 
 app.post("/signup",async (req,res)=>{
 
@@ -56,10 +59,44 @@ app.post("/login",async (req,res)=>{
             throw new Error("Invalid crendential!")
         }else{
 
+            const token = await jwt.sign({ _id: user._id },"Infinity@1729");//hiding id inside the token with secretkey
+           
+
+            res.cookie("token",token);//add token in cookies and send response back
             res.send("Login succesfully!");        
         }
 
     }catch(err){
+        res.status(400).send("Error: "+err.message);
+    }
+});
+
+
+app.get("/profile",async (req,res)=>{
+
+    try{
+        const cookie =req.cookies;
+
+        
+        const { token }=cookie;
+        //validate my token
+        if(!token){
+            throw new Error("Invalid Tokken");
+        }
+        
+        const decodedMessage= await jwt.verify(token, 'Infinity@1729');
+        console.log(decodedMessage);
+
+        const {_id}=decodedMessage;
+        const user=await User.findById(_id);
+        if(!user){
+            throw new Error("User does not exit");
+        }
+
+        
+        res.send(user);
+    }
+    catch(err){
         res.status(400).send("Error: "+err.message);
     }
 });
