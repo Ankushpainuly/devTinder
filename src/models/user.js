@@ -1,7 +1,8 @@
 const mongoose =require("mongoose");
 const validator =require("validator");//npm library
 const { default: isURL } = require("validator/lib/isURL");
-
+const jwt = require("jsonwebtoken");
+const bcrypt =require("bcrypt");
 
 const userSchema=new mongoose.Schema({
     firstName:{
@@ -68,5 +69,23 @@ const userSchema=new mongoose.Schema({
     
 
 },{timestamps:true});
+
+
+//schema method
+userSchema.methods.getJWT = async function(){//don't use arrow function they cannot user "this" keyword
+    const user =this;
+
+    const token =await jwt.sign({ _id: user._id },"Infinity@1729",{expiresIn:"7d"});//hiding id inside the token with secretkey //ading expire of a token
+    return token;
+};
+
+userSchema.methods.validatePassword = async function(passwordInputByUser){
+    const user =this;
+    const passwordHash =user.password;
+
+    const isPasswordValid =await bcrypt.compare(passwordInputByUser,passwordHash);
+    return isPasswordValid;
+}
+
 
 module.exports=mongoose.model("User",userSchema);//use 1 char as upercase in model name

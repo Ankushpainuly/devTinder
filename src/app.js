@@ -6,6 +6,7 @@ const {validateSignUpData} =require("./utils/validation");
 const bcrypt =require("bcrypt");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
+const {userAuth} = require("./middlewares/auth");
 
 const app = express();
 
@@ -53,16 +54,16 @@ app.post("/login",async (req,res)=>{
         }
 
         //check password valid or not with the password and hashpassword from db
-        const isPasswordValid= await bcrypt.compare(password, user.password);
+        const isPasswordValid= await user.validatePassword(password);
 
         if(!isPasswordValid){
             throw new Error("Invalid crendential!")
         }else{
-
-            const token = await jwt.sign({ _id: user._id },"Infinity@1729");//hiding id inside the token with secretkey
+            //create a JWT token
+            const token = await user.getJWT();
            
 
-            res.cookie("token",token);//add token in cookies and send response back
+            res.cookie("token",token,{expires: new Date(Date.now() + 8 * 3600000)});//add token in cookies and send response back // cookie will be removed after 8 hours
             res.send("Login succesfully!");        
         }
 
@@ -72,23 +73,13 @@ app.post("/login",async (req,res)=>{
 });
 
 
-app.get("/profile",async (req,res)=>{
+app.get("/profile",userAuth,async (req,res)=>{
 
     try{
-        const cookie =req.cookies;
-
         
-        const { token }=cookie;
-        //validate my token
-        if(!token){
-            throw new Error("Invalid Tokken");
-        }
+        const user=req.user;
         
-        const decodedMessage= await jwt.verify(token, 'Infinity@1729');
-        console.log(decodedMessage);
 
-        const {_id}=decodedMessage;
-        const user=await User.findById(_id);
         if(!user){
             throw new Error("User does not exit");
         }
@@ -101,80 +92,14 @@ app.get("/profile",async (req,res)=>{
     }
 });
 
-//Get user by emailId
-app.get("/user",async (req,res)=>{
-    const userEmail=req.body.emailId;
-    try{
-        const user= await User.find({emailId:userEmail});
-        if(!user){
-            res.status(500).send("Something went wrong!!");
-        }else{
 
-            res.send(user);
-        }
-    }catch(err){
-        res.status(500).send("Something went wrong!!");
-    }
+app.post("/sendConnectionRequest",userAuth, async (req,res)=>{
+    const user =req.user;
 
-});
-
-
-//feed Api => Get feed all users from database
-app.get("/feed",async (req,res)=>{
-    try{
-        const users= await User.find({});
-        res.send(users);
-    }catch(err){
-        res.status(500).send("Something went wrong!!");
-    }
-
-
-});
-
-app.delete("/user",async(req,res)=>{
-    const userId=req.body.userId;
-
-    try{
-       const user= await User.findByIdAndDelete({ _id: userId });;
-    //    const user= await User.findByIdAndDelete(userId);;
-        res.send("User deleted Successfully");
-
-    }catch(err){
-        res.status(500).send("Something went wrong!!");
-    }
-});
-
-
-app.patch("/user/:userId",async(req,res)=>{
-    const userId=req.params?.userId;
-    const data =req.body;
-
-    
-    try{
-        //API validation
-        const ALLOWED_UPDATES=["photoUrl","about","gender","age","skills"];
-    
-        const isUpdateAllowed = Object.keys(data).every((k)=>
-            ALLOWED_UPDATES.includes(k)
-        );
-    
-        if(!isUpdateAllowed){
-            throw new Error("Update Not Allowed");
-        }
-        if(data?.skills.length>10){
-            throw new Error("Update Not Allowed");
-        }
-
-
-        const user=await User.findByIdAndUpdate(userId ,data, //the data will updata other info will be same and ignore exta info if any that are not in schema
-            {returnDocument:"before"},{runValidators:true});//optional field //1. returnDocument before update 2.schemaValidation in update allow
-        console.log(user);
-        res.send("User updated succesfully");
-
-    }catch(err){
-        res.status(500).send("Failed:"+err.message);
-    }
+    res.send(user.firstName+" send the connection Request!!");
 })
+
+
 
 
 //this function return a promise
