@@ -12,11 +12,12 @@ app.use(cookieParser());//for reading cookies
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const requestRouteer = require("./routes/request");
+const userRouter = require("./routes/user");
 
 app.use("/",authRouter);
 app.use("/",profileRouter);
 app.use("/",requestRouteer);
-
+app.use("/",userRouter);
 
 //this function return a promise
 connectDB()
