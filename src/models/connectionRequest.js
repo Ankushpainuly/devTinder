@@ -8,6 +8,7 @@ const connectionRequestSchema = new mongoose.Schema({
     },
     toUserId:{
         type : mongoose.Schema.Types.ObjectId,
+        ref:"User",//refer to the user model
         require : true
 
     },
