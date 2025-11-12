@@ -64,18 +64,18 @@ userRouter.get("/feed", userAuth, async (req, res) => {
   try {
     const logedInUser = req.user;
 
-    const page = parseInt(req.query.page) || 1;//default page 1 ,limit 10
+    const page = parseInt(req.query.page) || 1; //default page 1 ,limit 10
     let limit = parseInt(req.query.limit) || 10;
 
-    limit = limit>50 ? 50 :limit;//agar limit > 50 h to limit 50 krdo nito limit jitni h utni rakho
+    limit = limit > 50 ? 50 : limit; //agar limit > 50 h to limit 50 krdo nito limit jitni h utni rakho
 
-    const skip = (page-1)*limit;
+    const skip = (page - 1) * limit;
 
     const connectionRequest = await ConnectionRequest.find({
       $or: [{ fromUserId: logedInUser._id }, { toUserId: logedInUser._id }],
     }).select("fromUserId toUserId");
 
-    const hideUsersFromFeed = new Set();//using set data structure so not include duplicate id's
+    const hideUsersFromFeed = new Set(); //using set data structure so not include duplicate id's
 
     //add all user id to set
     connectionRequest.forEach((req) => {
@@ -86,17 +86,19 @@ userRouter.get("/feed", userAuth, async (req, res) => {
     //find all users who are not in hideUsers and not the logedInUser
     const users = await User.find({
       $and: [
-        { _id: { $nin: Array.from(hideUsersFromFeed) } },//converting set into array ,and check //$nin not in array
-        { _id: { $ne: logedInUser._id } },//$ne not equal to 
-      ], 
-    }).select(USER_SAFE_DATA).skip(skip).limit(limit);
+        { _id: { $nin: Array.from(hideUsersFromFeed) } }, //converting set into array ,and check //$nin not in array
+        { _id: { $ne: logedInUser._id } }, //$ne not equal to
+      ],
+    })
+      .select(USER_SAFE_DATA)
+      .skip(skip)
+      .limit(limit);
 
     res.send(users);
-
+    
   } catch (err) {
     res.status(400).send("ERROR " + err.message);
   }
-
 });
 
 module.exports = userRouter;

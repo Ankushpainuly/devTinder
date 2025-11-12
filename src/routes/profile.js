@@ -59,8 +59,7 @@ profileRouter.patch("/profile/password",userAuth, async(req,res)=>{
         }   
 
         const newPasswordHash=await bcrypt.hash(newPassword, 10);
-        console.log(logedInUser.password);
-
+      
         logedInUser.password =newPasswordHash;
         logedInUser.save();
 

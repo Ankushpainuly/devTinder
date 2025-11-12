@@ -25,9 +25,13 @@ authRouter.post("/signup",async (req,res)=>{
             password:passwordHash
         });
 
+        const saveUser= await user.save();//now it insert the user in users collection if already exits oderwise create and save
 
-        await user.save();//now it insert the user in users collection if already exits oderwise create and save
-        res.send("User Added Succesfully");
+        //create a JWT token
+        const token = await saveUser.getJWT();
+        res.cookie("token",token,{expires: new Date(Date.now() + 8 * 3600000)});//add token in cookies and send response back // cookie will be removed after 8 hours
+ 
+        res.json({message:"User Added Succesfully",data:saveUser});
     }catch(err){
         res.status(400).send("Error: "+err.message);
     }
@@ -56,7 +60,7 @@ authRouter.post("/login",async (req,res)=>{
            
 
             res.cookie("token",token,{expires: new Date(Date.now() + 8 * 3600000)});//add token in cookies and send response back // cookie will be removed after 8 hours
-            res.send("Login succesfully!");        
+            res.send(user);        
         }
 
     }catch(err){

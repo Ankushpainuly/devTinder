@@ -10,7 +10,7 @@ const userAuth =async (req,res,next)=>{
         const { token }=cookie;
         //validate my token
         if(!token){
-            throw new Error("Invalid Tokken");
+            return res.status(401).send("Please Login!");
         }
         
         const decodedObj= await jwt.verify(token, 'Infinity@1729');

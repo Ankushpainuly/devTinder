@@ -3,11 +3,18 @@ const express = require("express");
 const connectDB =require("./config/database");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
+const cors = require("cors");
 
 const app = express();
 
-app.use(express.json());//It parses incoming requests with JSON 
-app.use(cookieParser());//for reading cookies
+// middleware for cors
+app.use(cors({
+    origin:"http://localhost:5174",//fThis tells your backend to only accept requests coming from your frontend
+    credentials:true,//This allows your frontend to send and receive cookies //If credentials: true is used on the backend, your frontend requests must include credentials too:
+}));
+
+app.use(express.json());//It parses incoming requests with JSON middleware
+app.use(cookieParser());//for reading cookies middleware
 
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
