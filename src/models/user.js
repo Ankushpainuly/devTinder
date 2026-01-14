@@ -80,7 +80,7 @@ const userSchema=new mongoose.Schema({
 userSchema.methods.getJWT = async function(){//don't use arrow function they cannot user "this" keyword
     const user =this;
 
-    const token =await jwt.sign({ _id: user._id },"Infinity@1729",{expiresIn:"7d"});//hiding id inside the token with secretkey //ading expire of a token
+    const token =await jwt.sign({ _id: user._id }, process.env.JWT_SECRET ,{expiresIn:"7d"});//hiding id inside the token with secretkey //ading expire of a token
     return token;
 };
 

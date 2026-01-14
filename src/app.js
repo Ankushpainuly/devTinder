@@ -5,11 +5,14 @@ const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
 
+require('dotenv').config()
+
+
 const app = express();
 
 // middleware for cors
 app.use(cors({
-    origin:"http://localhost:5174",//fThis tells your backend to only accept requests coming from your frontend
+    origin:"http://localhost:5173",//fThis tells your backend to only accept requests coming from your frontend
     credentials:true,//This allows your frontend to send and receive cookies //If credentials: true is used on the backend, your frontend requests must include credentials too:
 }));
 
@@ -32,7 +35,7 @@ connectDB()
         console.log("Database connection establish..");
 
         //when the connection establish then we start lisning the server
-        app.listen(300, () => {
+        app.listen(process.env.PORT, () => {
           console.log("Server is sucessfully lisning on port 300...");
         });
     })
