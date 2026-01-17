@@ -36,7 +36,7 @@ connectDB()
 
         //when the connection establish then we start lisning the server
         app.listen(process.env.PORT, () => {
-          console.log("Server is sucessfully lisning on port 300...");
+          console.log("Server is sucessfully lisning on port 7777...");
         });
     })
     .catch((err)=>{
