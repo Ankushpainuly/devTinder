@@ -87,16 +87,17 @@ paymentRouter.post("/payment/webhook",express.raw({ type: "application/json" }),
 
     await user.save();
     
-    // if(req.body.event == "payment.captured"){
+    // if(webhookBody.event == "payment.captured"){
     // }
 
-    // if(req.body.event == "payment.failed"){
+    // if(webhookBody.event == "payment.failed"){
     // }
 
     //return success response to razorpay
     return res.status(200).json({ msg: "Webhook recieve successfully" });
 
   } catch (err) {
+    console.log("Invalid Webhook Signature");
     return res.status(500).json({ msg: err.message });
   }
 });
