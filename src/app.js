@@ -10,6 +10,8 @@ require('dotenv').config();
 
 const app = express();
 
+require("./utils/cronJob");
+
 // middleware for cors
 app.use(cors({
     origin:"http://localhost:5173",//fThis tells your backend to only accept requests coming from your frontend
@@ -23,11 +25,13 @@ const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const requestRouteer = require("./routes/request");
 const userRouter = require("./routes/user");
+const paymentRouter = require("./routes/payment");
 
 app.use("/",authRouter);
 app.use("/",profileRouter);
 app.use("/",requestRouteer);
 app.use("/",userRouter);
+app.use("/",paymentRouter);
 
 //this function return a promise
 connectDB()

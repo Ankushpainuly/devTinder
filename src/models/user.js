@@ -55,6 +55,13 @@ const userSchema=new mongoose.Schema({
         // },
 
     },
+    isPremium:{
+        type: Boolean,
+        default: false,
+    },
+    membershipType:{
+        type: String,
+    },
     photoUrl:{
         type:String,
         default:"https://kristalle.com/wp-content/uploads/2020/07/dummy-profile-pic-1.jpg",

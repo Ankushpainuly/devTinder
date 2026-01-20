@@ -3,8 +3,9 @@ const { userAuth } = require("../middlewares/auth");
 const ConnectionRequest = require("../models/connectionRequest");
 const User = require("../models/user");
 
-
 const requestRouter = express.Router();
+
+const sendEmail = require("../utils/sendEmail");
 
 requestRouter.post(
   "/request/send/:status/:toUserId",
@@ -19,7 +20,9 @@ requestRouter.post(
       const allowedStatus = ["ignored", "interested"];
 
       if (!allowedStatus.includes(status)) {
-        return res.status(400).json({ message: "Invalid status type :" + status });
+        return res
+          .status(400)
+          .json({ message: "Invalid status type :" + status });
       }
 
       //toUser is not in our user Collection
@@ -39,7 +42,9 @@ requestRouter.post(
       });
 
       if (existingConnectionRequest) {
-        return res.status(400).json({ message: "Connection request Already existed!" });
+        return res
+          .status(400)
+          .json({ message: "Connection request Already existed!" });
       }
 
       const connectionRequest = new ConnectionRequest({
@@ -49,6 +54,16 @@ requestRouter.post(
       });
 
       const data = await connectionRequest.save();
+
+      try{
+        const emailRes = await sendEmail.run(
+          "New Frend Request",
+          "You got frend req from " + req.user.firstName
+        );
+        // console.log(emailRes);
+      }catch(err){
+        console.log(err);
+      }
 
       res.json({
         message: "Connection Request Send Successfully!",
@@ -60,21 +75,21 @@ requestRouter.post(
   }
 );
 
-
 requestRouter.post(
   "/request/review/:status/:requestedId",
   userAuth,
   async (req, res) => {
-
     try {
       const logedInUser = req.user;
       const { status, requestedId } = req.params;
 
       const allowedStatus = ["accepted", "rejected"];
       if (!allowedStatus.includes(status)) {
-        return res.status(400).json({ message: "Status no allowed! " + status });
+        return res
+          .status(400)
+          .json({ message: "Status no allowed! " + status });
       }
-      
+
       //find the connectionRequest which has the id:reqId , toUserId:currUserId ,status : interested
       //so we can accept or reject the req
       const connectionRequest = await ConnectionRequest.findOne({
@@ -89,13 +104,11 @@ requestRouter.post(
           .json({ message: "Connection Request Not Found!!" });
       }
 
-      connectionRequest.status=status;
+      connectionRequest.status = status;
 
       const data = await connectionRequest.save();
 
-      res.json({message:"Connection Request"+status,data});
-
-
+      res.json({ message: "Connection Request" + status, data });
     } catch (err) {
       res.status(400).send("ERROR :" + err.message);
     }
