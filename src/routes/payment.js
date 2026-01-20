@@ -47,14 +47,17 @@ paymentRouter.post("/payment/create", userAuth, async (req, res) => {
   }
 });
 
+
+// Razorpay generates the signature on the raw request body, not parsed JSON.
 paymentRouter.post("/payment/webhook",express.raw({ type: "application/json" }), async (req, res) => {
   try {
     console.log("Webhook Called");
-    const webhookSignature = req.headers("x-razorpay-signature");
+
+    const webhookSignature = req.headers["x-razorpay-signature"];
     console.log("Webhook Signature", webhookSignature);
 
     const isWebhookValid = validateWebhookSignature(
-      JSON.stringify(req.body),
+      req.body.toString(),
       webhookSignature,
       process.env.RAZORPAY_WEBHOOK_SECRET
     );
@@ -66,7 +69,12 @@ paymentRouter.post("/payment/webhook",express.raw({ type: "application/json" }),
     console.log("Valid Webhook Signature");
 
     //update my payment status in DB
-    const paymentDetails = req.body.payload.payment.entity;
+
+     // ✅ Parse raw body
+     const webhookBody = JSON.parse(req.body.toString());
+
+     // update payment
+     const paymentDetails = webhookBody.payload.payment.entity;
 
     const payment = await Payment.findOne({orderId: paymentDetails.order_id});
     payment.status=paymentDetails.status;
