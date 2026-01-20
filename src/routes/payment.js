@@ -48,17 +48,16 @@ paymentRouter.post("/payment/create", userAuth, async (req, res) => {
 });
 
 
-// Razorpay generates the signature on the raw request body, not parsed JSON.
-paymentRouter.post("/payment/webhook",express.raw({ type: "application/json" }), async (req, res) => {
+
+paymentRouter.post("/payment/webhook", async (req, res) => {
   try {
     console.log("Webhook Called");
 
     const webhookSignature = req.headers["x-razorpay-signature"];
     console.log("Webhook Signature", webhookSignature);
-    console.log(req.body.toString());
 
     const isWebhookValid = validateWebhookSignature(
-      req.body.toString(),
+      JSON.stringify(req.body),
       webhookSignature,
       process.env.RAZORPAY_WEBHOOK_SECRET
     );
@@ -71,11 +70,8 @@ paymentRouter.post("/payment/webhook",express.raw({ type: "application/json" }),
 
     //update my payment status in DB
 
-     // ✅ Parse raw body
-     const webhookBody = JSON.parse(req.body.toString());
-
      // update payment
-     const paymentDetails = webhookBody.payload.payment.entity;
+     const paymentDetails = req.body.payload.payment.entity;
 
     const payment = await Payment.findOne({orderId: paymentDetails.order_id});
     payment.status=paymentDetails.status;
@@ -88,10 +84,10 @@ paymentRouter.post("/payment/webhook",express.raw({ type: "application/json" }),
 
     await user.save();
     
-    // if(webhookBody.event == "payment.captured"){
+    // if(req.body.event == "payment.captured"){
     // }
 
-    // if(webhookBody.event == "payment.failed"){
+    // if(req.body.event == "payment.failed"){
     // }
 
     //return success response to razorpay
