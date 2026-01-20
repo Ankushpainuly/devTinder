@@ -55,6 +55,7 @@ paymentRouter.post("/payment/webhook",express.raw({ type: "application/json" }),
 
     const webhookSignature = req.headers["x-razorpay-signature"];
     console.log("Webhook Signature", webhookSignature);
+    console.log(req.body.toString());
 
     const isWebhookValid = validateWebhookSignature(
       req.body.toString(),
