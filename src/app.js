@@ -26,12 +26,20 @@ const profileRouter = require("./routes/profile");
 const requestRouteer = require("./routes/request");
 const userRouter = require("./routes/user");
 const paymentRouter = require("./routes/payment");
+const chatRouter = require("./routes/chat");
 
 app.use("/",authRouter);
 app.use("/",profileRouter);
 app.use("/",requestRouteer);
 app.use("/",userRouter);
 app.use("/",paymentRouter);
+app.use("/",chatRouter);
+
+const http = require("http");
+const initializeSocket = require("./utils/socket");
+
+const server = http.createServer(app);
+initializeSocket(server);
 
 //this function return a promise
 connectDB()
@@ -39,7 +47,7 @@ connectDB()
         console.log("Database connection establish..");
 
         //when the connection establish then we start lisning the server
-        app.listen(process.env.PORT, () => {
+        server.listen(process.env.PORT, () => {
           console.log("Server is sucessfully lisning on port 7777...");
         });
     })
